@@ -3,11 +3,8 @@ import asyncio
 import logging
 from .enums import DeviceState, LightState
 
-# from typing import List
-# from abc import ABC, abstractmethod
-
 log = logging.getLogger(__name__)
-# logger.addHandler(logging.NullHandler())
+log.addHandler(logging.NullHandler())
 
 class MuteMe():
     def __init__(self,vid,pid):
@@ -16,9 +13,8 @@ class MuteMe():
         self._observers: dict= {}
         self._device = hid.device()
         
-        # TODO: make into properties
-        self._long_tap_delay = 15
-        self._double_tap_delay = 13
+        self.longTapDelay = 15
+        self.doubleTapDelay = 13
         
         try:
             self._device.open(self._vid, self._pid)
@@ -120,6 +116,22 @@ class MuteMe():
     def lightState(self,lightState) -> None:
         self._device.write([0,lightState])
         self._state = lightState
+
+    @property
+    def longTapDelay(self) -> int:
+        return self._long_tap_delay
+    
+    @longTapDelay.setter
+    def longTapDelay(self,delay) -> None:
+        self._long_tap_delay = delay
+        
+    @property
+    def doubleTapDelay(self) -> int:
+        return self._double_tap_delay
+    
+    @doubleTapDelay.setter
+    def doubleTapDelay(self, delay) -> None:
+        self._double_tap_delay = delay
     
     def close(self) -> None:
         self.lightState = LightState.OFF

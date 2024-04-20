@@ -12,16 +12,16 @@ VID = 0x20A0
 PID = 0x42DA
 
 def on_tap(button) -> None:
-    if button.state == LightState.GREEN:
-        button.state =LightState.RED
+    if button.lightState == LightState.GREEN:
+        button.lightState =LightState.RED
     else:
-        button.state = LightState.GREEN
+        button.lightState = LightState.GREEN
         
 def on_long_tap(button) -> None:
-    if button.state == LightState.GREEN:
-        button.state =LightState.RED
+    if button.lightState == LightState.GREEN:
+        button.lightState =LightState.RED
     else:
-        button.state = LightState.GREEN
+        button.lightState = LightState.GREEN
 
 def on_double_tap(button: MuteMe) -> None:
     log.debug(f"Before XOR: {button.lightState}")

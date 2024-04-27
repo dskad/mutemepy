@@ -1,5 +1,6 @@
 from enum import IntEnum
 
+
 class LightState(IntEnum):
     OFF       = 0x00
     RED       = 0x01
@@ -12,6 +13,7 @@ class LightState(IntEnum):
     DIM       = 0x10
     FASTPULSE = 0x20
     SLOWPULSE = 0x30
+
 
 class DeviceState(IntEnum):
     # Data sent from MuteMe

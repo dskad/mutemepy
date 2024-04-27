@@ -93,6 +93,7 @@ class MuteMe:
     def on_nodata(self):
         self._button_state.on_nodata(self)
 
+
     # region Callbacks
     def on_tap(self, observer: callable) -> None:
         self._observers.setdefault("on_tap", []).append(observer)
@@ -118,79 +119,18 @@ class MuteMe:
     
     async def connect(self) -> None:
         try:
-            # double_tap_timer = 0
-            # long_tap_timer = 0
-            # long_tap_active = False
-
             while True:
-                # Note: Don't count the double tap timer here. on every cycle through this loop, call on_data
-                #   so that multitap detect can increment it's timer counter.
-
-                # if double_tap_timer:
-                #     if double_tap_timer <= self._double_tap_delay:
-                #         double_tap_timer += 1
-                #     else:
-                #         self.notify("on_tap")
-                #         double_tap_timer = 0
-
+                # Main event loop for button 
                 device_data: List[int] = self._device.read(8)
-
-                # NOTE: device_data is null when there is no device input. there's no index 3 on null...
-                #       Need to figure out how to call on_data with null device_data or device_data[3]
-                
+               
                 if device_data:
                     self.on_data(device_data[3])
                 else:
                     self.on_nodata()
 
-                # Note: Move detection of data present into the state on_data functions. This allows for timers to increment
-                #   Null data will either do nothing in the Idle state or increment a timer in the multitap detect state.
-
-                # if device_data:
-                #     device_state: int = device_data[3]
-                #     log.debug(
-                #         f"Device state: {device_state}\tLong tap timer: {long_tap_timer}\tdoube tap timer: {double_tap_timer}"
-                #     )
-
-                #     # Start touch
-                #     if device_state == DeviceState.START_TOUCH:
-                #         if double_tap_timer:
-                #             if (
-                #                 not long_tap_active
-                #                 and double_tap_timer < self._double_tap_delay
-                #             ):
-                #                 self.notify("on_double_tap")
-                #                 double_tap_timer = 0
-                #         else:
-                #             long_tap_timer += 1
-
-                #     # Touching
-                #     if device_state == DeviceState.TOUCHING:
-                #         # Activate long tap if _long_tap_delay exceeded
-                #         if long_tap_timer >= self._long_tap_delay:
-                #             self.notify("on_long_tap_start")
-                #             long_tap_timer = 0
-                #             long_tap_active = True
-
-                #         # increment long tap timer if enabled (not 0)
-                #         if long_tap_timer:
-                #             long_tap_timer += 1
-
-                #     # End Touch
-                #     if device_state == DeviceState.END_TOUCH:
-                #         if long_tap_active:
-                #             self.notify("on_long_tap_end")
-                #             long_tap_active = False
-                #             long_tap_timer = 0
-                #         elif double_tap_timer:
-                #             double_tap_timer = 0
-                #             long_tap_timer = 0
-                #         else:
-                #             double_tap_timer += 1
-                #             long_tap_timer = 0
-
                 # 0.01 = 100Hz sample rate
                 await asyncio.sleep(0.01)
+        
         except asyncio.CancelledError:
             log.info("Canceling read event loop")
 

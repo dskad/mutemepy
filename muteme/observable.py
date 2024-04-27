@@ -11,10 +11,16 @@ class Observable(ABC):
     def on_tap(self, observer: Observer) -> None:
         pass
 
-    def on_double_tap(self, observer: Observer) -> None:
+    @abstractmethod
+    def on_long_tap_start(self, observer: Observer) -> None:
         pass
 
-    def on_long_tap(self, observer: Observer) -> None:
+    @abstractmethod
+    def on_long_tap_end(self, observer: Observer) -> None:
+        pass
+
+    @abstractmethod
+    def on_double_tap(self, observer: Observer) -> None:
         pass
     
     @abstractmethod

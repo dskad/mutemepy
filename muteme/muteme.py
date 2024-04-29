@@ -1,9 +1,9 @@
 import hid
 import asyncio
 import logging
-from typing import List
+from typing import List, Callable
 from .enums import LightState
-from .states import State, Idle, StartTap, TapEnd,  MultiTapDetect, LongTap
+from .statemanager import StateManager
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -18,15 +18,9 @@ class MuteMe:
         self._long_tap_delay = 15
         self._multi_tap_delay = 13
 
+        self._state_manager = StateManager(self._long_tap_delay, self._multi_tap_delay)
+
         self._observers: dict = {}
-
-        self._idle_state = Idle()
-        self._start_tap_state = StartTap()
-        self._tap_end_state = TapEnd()
-        self._multi_tap_detect_state = MultiTapDetect()
-        self._long_tap_state = LongTap()
-
-        self.setState(self._idle_state)
 
         try:
             self._device.open(self._vid, self._pid)
@@ -37,27 +31,6 @@ class MuteMe:
             print("Error connecting to device")
 
     
-    @property
-    def idle_state(self):
-        return self._idle_state
-    
-    @property
-    def start_tap_state(self):
-        return self._start_tap_state
-    
-    @property
-    def tap_end_state(self):
-        return self._tap_end_state
-
-    @property
-    def long_tap_state(self):
-        return self._long_tap_state
-    
-    @property
-    def multi_tap_detect_state(self):
-        return self._multi_tap_detect_state
-
-
     @property
     def light_state(self) -> LightState:
         return self._light_state
@@ -82,16 +55,6 @@ class MuteMe:
     @multi_tap_delay.setter
     def multi_tap_delay(self, delay: int) -> None:
         self._multi_tap_delay = delay
-
-
-    def setState(self, state: State):
-        self._button_state = state
-
-    def on_data(self, data: int):
-        self._button_state.on_data(self, data)
-        
-    def on_nodata(self):
-        self._button_state.on_nodata(self)
 
 
     # region Callbacks
@@ -124,9 +87,9 @@ class MuteMe:
                 device_data: List[int] = self._device.read(8)
                
                 if device_data:
-                    self.on_data(device_data[3])
+                    self._state_manager.on_data(self.notify, device_data[3])
                 else:
-                    self.on_nodata()
+                    self._state_manager.on_nodata(self.notify)
 
                 # 0.01 = 100Hz sample rate
                 await asyncio.sleep(0.01)

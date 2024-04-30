@@ -1,20 +1,17 @@
-import hid
 import asyncio
 import logging
-from typing import List, Callable
+from typing import Callable, Optional, Self
 from .enums import LightState
 from .statemanager import StateManager
+from .device import Device
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class MuteMe:
+class MuteMe():
 
-    def __init__(self, vid, pid):
-        self._vid: int = vid
-        self._pid: int = pid
-        self._device = hid.device()
+    def __init__(self) -> None:
         self._long_tap_delay = 15
         self._multi_tap_delay = 13
 
@@ -22,23 +19,16 @@ class MuteMe:
 
         self._observers: dict = {}
 
-        try:
-            self._device.open(self._vid, self._pid)
-            self._device.set_nonblocking(1)
-            self.light_state = LightState.OFF
-        except Exception:
-            #TODO: fix exception type
-            print("Error connecting to device")
-
+        self._device = Device()
+        self._device.open()
     
     @property
-    def light_state(self) -> LightState:
-        return self._light_state
+    def light_state(self) -> LightState | int:
+        return self._device.light_state
 
     @light_state.setter
-    def light_state(self, lightState: LightState) -> None:
-        self._device.write([0, lightState])
-        self._light_state = lightState
+    def light_state(self, lightState: LightState | int) -> None:
+        self._device.light_state = lightState
 
     @property
     def long_tap_delay(self) -> int:
@@ -58,7 +48,7 @@ class MuteMe:
 
 
     # region Callbacks
-    def on_tap(self, observer: callable) -> None:
+    def on_tap(self, observer: Callable[[Self], None]) -> None:
         self._observers.setdefault("on_tap", []).append(observer)
 
     def on_long_tap_start(self, observer: callable) -> None:
@@ -84,10 +74,10 @@ class MuteMe:
         try:
             while True:
                 # Main event loop for button 
-                device_data: List[int] = self._device.read(8)
+                device_data: Optional[int] = self._device.read()
                
                 if device_data:
-                    self._state_manager.on_data(self.notify, device_data[3])
+                    self._state_manager.on_data(self.notify, device_data)
                 else:
                     self._state_manager.on_nodata(self.notify)
 

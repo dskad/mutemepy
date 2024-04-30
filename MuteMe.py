@@ -8,32 +8,30 @@ logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s %(levelname)s [%(name)s:%(lineno)d] %(message)s"
 )
 
-VID = 0x20A0
-PID = 0x42DA
-
 # TODO: on_tap resets blink, need to determine if currently blinking. 
 #       Maybe light state needs to be a bitmap so light state changes don't walk on each other.
 def on_tap(button) -> None:
-    if button.light_state == LightState.GREEN:
-        button.light_state = LightState.RED
+    if myMuteMe.light_state == LightState.GREEN:
+        myMuteMe.light_state = LightState.RED
     else:
-        button.light_state = LightState.GREEN
+        myMuteMe.light_state = LightState.GREEN
 
 
 def on_long_tap(button) -> None:
-    if button.light_state == LightState.GREEN:
-        button.light_state = LightState.RED
+    if myMuteMe.light_state == LightState.GREEN:
+        myMuteMe.light_state = LightState.RED
     else:
-        button.light_state = LightState.GREEN
+        myMuteMe.light_state = LightState.GREEN
 
 
-def on_double_tap(button: MuteMe) -> None:
-    log.debug(f"Before XOR: {button.light_state}")
-    button.light_state = button.light_state ^ LightState.FASTPULSE
-    log.debug(f"After XOR: {button.light_state}")
+def on_double_tap(button) -> None:
+    log.debug(f"Before XOR: {myMuteMe.light_state}")
+    current_light_state: int = myMuteMe.light_state
+    myMuteMe.light_state = current_light_state ^ LightState.FASTPULSE
+    log.debug(f"After XOR: {myMuteMe.light_state}")
 
 
-myMuteMe = MuteMe(VID, PID)
+myMuteMe = MuteMe()
 myMuteMe.light_state = LightState.GREEN
 myMuteMe.on_tap(on_tap)
 myMuteMe.on_long_tap_start(on_long_tap)

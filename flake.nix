@@ -19,6 +19,7 @@
 	python311Packages.pip
 	python311Packages.hidapi
 	ruff
+	isort
       ];
     };
   };

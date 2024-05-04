@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from typing import Callable, Optional, Self
-from .enums import LightState
+from muteme.devicestates.colorstate import ColorState
 from .statemanager import StateManager
 from .device import Device
 
@@ -9,8 +9,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class MuteMe():
-
+class MuteMe:
     def __init__(self) -> None:
         self._long_tap_delay = 15
         self._multi_tap_delay = 13
@@ -21,13 +20,13 @@ class MuteMe():
 
         self._device = Device()
         self._device.open()
-    
+
     @property
-    def light_state(self) -> LightState | int:
+    def light_state(self) -> ColorState | int:
         return self._device.light_state
 
     @light_state.setter
-    def light_state(self, lightState: LightState | int) -> None:
+    def light_state(self, lightState: ColorState | int) -> None:
         self._device.light_state = lightState
 
     @property
@@ -46,7 +45,6 @@ class MuteMe():
     def multi_tap_delay(self, delay: int) -> None:
         self._multi_tap_delay = delay
 
-
     # region Callbacks
     def on_tap(self, observer: Callable[[Self], None]) -> None:
         self._observers.setdefault("on_tap", []).append(observer)
@@ -61,7 +59,7 @@ class MuteMe():
         self._observers.setdefault("on_double_tap", []).append(observer)
 
     def notify(self, event_type) -> None:
-        if  event_type not in self._observers:
+        if event_type not in self._observers:
             log.debug("Notify: event not found")
             return
         for observer in self._observers[event_type]:
@@ -69,13 +67,12 @@ class MuteMe():
             observer(self)
     # endregion
 
-    
     async def connect(self) -> None:
         try:
             while True:
-                # Main event loop for button 
+                # Main event loop for button
                 device_data: Optional[int] = self._device.read()
-               
+
                 if device_data:
                     self._state_manager.on_data(self.notify, device_data)
                 else:
@@ -83,7 +80,7 @@ class MuteMe():
 
                 # 0.01 = 100Hz sample rate
                 await asyncio.sleep(0.01)
-        
+
         except asyncio.CancelledError:
             log.info("Canceling read event loop")
 
@@ -92,5 +89,5 @@ class MuteMe():
             self.close()
 
     def close(self) -> None:
-        self.light_state = LightState.OFF
+        self.light_state = ColorState.OFF
         self._device.close()

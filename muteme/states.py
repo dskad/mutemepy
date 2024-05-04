@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 import logging
 
-# from multiprocessing import notify
-from .enums import DeviceState
+from .devicestates import DeviceState
 from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:

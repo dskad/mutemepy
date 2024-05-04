@@ -2,7 +2,7 @@ from time import sleep
 from typing import Optional
 import hid
 import logging
-from .enums import DeviceState, LightState
+from .devicestates import DeviceState, ColorState
 from .exceptions import DeviceNotFoundError
 
 log = logging.getLogger(__name__)
@@ -11,20 +11,20 @@ log.addHandler(logging.NullHandler())
 class Device():
     def __init__(self):
         self._supported_devices = [
-            (0x16c0, 0x27db),
-            (0x20a0, 0x42da),
-            (0x20a0, 0x42db) 
+            (0x16c0, 0x27db),   # MuteMe Original (prototypes)
+            (0x20a0, 0x42da),   # MuteMe Original (production)
+            (0x20a0, 0x42db)    # MuteMe Mini (production)
         ]
 
         self._device = hid.device()
-        self._light_state = LightState.OFF
+        self._light_state = ColorState.OFF
 
     @property
-    def light_state(self) -> LightState:
+    def light_state(self) -> ColorState:
         return self._light_state
 
     @light_state.setter
-    def light_state(self, lightState: LightState) -> None:
+    def light_state(self, lightState: ColorState) -> None:
         # log.debug(f"Setting light state to {LightState(lightState).name}")
         self._device.write([0, lightState])
         self._light_state = lightState
@@ -59,7 +59,7 @@ class Device():
             log.error(f"Compatible MuteMe device not found: {error}")
             raise DeviceNotFoundError("Device not found")
         
-        self.light_state = LightState.OFF
+        self.light_state = ColorState.OFF
 
     def read(self) -> Optional[int]:
         data = self._device.read(8)

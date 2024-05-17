@@ -1,10 +1,10 @@
 from .colorstate import ColorState
-from .devicestate import DeviceState
+from .touchstate import TouchState
 from .effectstate import EffectState
 
 
 __all__ = [
     "ColorState",
-    "DeviceState",
+    "TouchState",
     "EffectState"
 ]

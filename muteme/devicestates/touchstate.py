@@ -1,7 +1,7 @@
 from enum import IntEnum
 
 
-class DeviceState(IntEnum):
+class TouchState(IntEnum):
     # Data sent from MuteMe
     START_TOUCH = 0x04
     TOUCHING    = 0x01

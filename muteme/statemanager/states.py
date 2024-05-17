@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import logging
 
-from .devicestates import DeviceState
+from ..devicestates import TouchState
 from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -26,7 +26,7 @@ class Idle(State):
     def on_data(
         self, context: "StateManager", notify: Callable[[str], None], data: int
     ) -> None:
-        if data == DeviceState.START_TOUCH:
+        if data == TouchState.START_TOUCH:
             context.setState(context.start_tap_state)
 
     def on_nodata(self, context: "StateManager", notify: Callable[[str], None]):
@@ -40,7 +40,7 @@ class StartTap(State):
     def on_data(
         self, context: "StateManager", notify: Callable[[str], None], data: int
     ) -> None:
-        if data == DeviceState.END_TOUCH:
+        if data == TouchState.END_TOUCH:
             self._timer = 0
             context.setState(context.multi_tap_detect_state)
 
@@ -60,7 +60,7 @@ class MultiTapDetect(State):
         self._multi_touch_count = 1
 
     def on_data(self, context: "StateManager", notify, data: int) -> None:
-        if data == DeviceState.START_TOUCH:
+        if data == TouchState.START_TOUCH:
             self._timer = 0
             self._multi_touch_count += 1
             context.setState(context.start_tap_state)
@@ -100,7 +100,7 @@ class LongTap(State):
             notify("on_long_tap_start")
             self._initial_call = False
 
-        if data == DeviceState.END_TOUCH:
+        if data == TouchState.END_TOUCH:
             notify("on_long_tap_end")
             self._initial_call = True
             context.setState(context.idle_state)

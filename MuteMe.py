@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from muteme.muteme import MuteMe
+from muteme import MuteMe
 from muteme.devicestates import ColorState, EffectState
 
 log = logging.getLogger()

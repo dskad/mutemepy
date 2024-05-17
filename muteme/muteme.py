@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from typing import Callable, Optional, Self
-from muteme.devicestates.colorstate import ColorState
+from .devicestates import ColorState
 from .statemanager import StateManager
 from .device import Device
 

@@ -30,6 +30,8 @@ class Device:
         self._device.write([0, lightState])
         self._light_state = lightState
 
+    #TODO: Implement light_effect property logic here
+
     def open(self):
         log.debug("Opening device")
         for vid, pid in self._supported_devices:

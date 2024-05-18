@@ -8,23 +8,16 @@ logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s %(levelname)s [%(name)s:%(lineno)d] %(message)s"
 )
 
+def toggle_color() -> None:
+    if myMuteMe.light_state == ColorState.GREEN:
+        myMuteMe.light_state = ColorState.RED
+    else:
+        myMuteMe.light_state = ColorState.GREEN
+
+
 # TODO: on_tap resets blink, need to determine if currently blinking. 
 #       Maybe light state needs to be a bitmap so light state changes don't walk on each other.
-def on_tap(button) -> None:
-    if myMuteMe.light_state == ColorState.GREEN:
-        myMuteMe.light_state = ColorState.RED
-    else:
-        myMuteMe.light_state = ColorState.GREEN
-
-
-def on_long_tap(button) -> None:
-    if myMuteMe.light_state == ColorState.GREEN:
-        myMuteMe.light_state = ColorState.RED
-    else:
-        myMuteMe.light_state = ColorState.GREEN
-
-
-def on_double_tap(button) -> None:
+def toggle_pulse() -> None:
     log.debug(f"Before XOR: {myMuteMe.light_state}")
     current_light_state: int = myMuteMe.light_state
     myMuteMe.light_state = current_light_state ^ EffectState.FASTPULSE
@@ -33,12 +26,12 @@ def on_double_tap(button) -> None:
 
 myMuteMe = MuteMe()
 myMuteMe.light_state = ColorState.GREEN
-myMuteMe.on_tap(on_tap)
-myMuteMe.on_long_tap_start(on_long_tap)
-myMuteMe.on_long_tap_end(on_long_tap)
-myMuteMe.on_double_tap(on_double_tap)
+myMuteMe.on_tap(toggle_color)
+myMuteMe.on_long_tap_start(toggle_color)
+myMuteMe.on_long_tap_end(toggle_color)
+myMuteMe.on_multi_tap(toggle_pulse)
 
-
+#TODO: Can this move into the class so the user doesn't need to worry about async code?
 async def main():
     async with asyncio.TaskGroup() as task_group:
         task_group.create_task(myMuteMe.connect())

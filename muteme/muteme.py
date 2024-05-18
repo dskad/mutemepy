@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Callable, Optional, Self
+from typing import Callable, Optional
 from .devicestates import ColorState
 from .statemanager import StateManager
 from .device import Device
@@ -22,12 +22,15 @@ class MuteMe:
         self._device.open()
 
     @property
-    def light_state(self) -> ColorState | int:
+    def light_state(self) -> ColorState:
         return self._device.light_state
 
     @light_state.setter
-    def light_state(self, lightState: ColorState | int) -> None:
+    def light_state(self, lightState: ColorState) -> None:
         self._device.light_state = lightState
+
+    # TODO: implement light_effect property, call to device property
+    # keep track of bitmap so change in color state doesn't overwrite effect
 
     @property
     def long_tap_delay(self) -> int:
@@ -46,16 +49,16 @@ class MuteMe:
         self._multi_tap_delay = delay
 
     # region Callbacks
-    def on_tap(self, observer: Callable[[Self], None]) -> None:
+    def on_tap(self, observer: Callable[[], None]) -> None:
         self._observers.setdefault("on_tap", []).append(observer)
 
-    def on_long_tap_start(self, observer: callable) -> None:
+    def on_long_tap_start(self, observer: Callable[[], None]) -> None:
         self._observers.setdefault("on_long_tap_start", []).append(observer)
 
-    def on_long_tap_end(self, observer: callable) -> None:
+    def on_long_tap_end(self, observer: Callable[[], None]) -> None:
         self._observers.setdefault("on_long_tap_end", []).append(observer)
 
-    def on_double_tap(self, observer: callable) -> None:
+    def on_multi_tap(self, observer: Callable[[], None]) -> None:
         self._observers.setdefault("on_double_tap", []).append(observer)
 
     def notify(self, event_type) -> None:
@@ -64,7 +67,7 @@ class MuteMe:
             return
         for observer in self._observers[event_type]:
             log.debug(f"Notify: notifying - {event_type}")
-            observer(self)
+            observer()
     # endregion
 
     async def connect(self) -> None:

@@ -2,7 +2,7 @@ from time import sleep
 from typing import Optional
 import hid
 import logging
-from .devicestates import TouchState, ColorState
+from .devicestates import TouchState, ColorState, EffectState
 from .exceptions import DeviceNotFoundError
 
 log = logging.getLogger(__name__)
@@ -18,19 +18,39 @@ class Device:
         ]
 
         self._device = hid.device()
-        self._light_state = ColorState.OFF
+        self._display_state = 0x00
 
     @property
-    def light_state(self) -> ColorState:
-        return self._light_state
+    def color(self) -> ColorState:
+        color = self._display_state & 0x0F
+        return ColorState(color)
 
-    @light_state.setter
-    def light_state(self, lightState: ColorState) -> None:
-        # log.debug(f"Setting light state to {LightState(lightState).name}")
-        self._device.write([0, lightState])
-        self._light_state = lightState
+    @color.setter
+    def color(self, new_color: ColorState) -> None:
+        log.debug(f"Setting light state to {ColorState(new_color).name}")
+        current_effect = self._display_state & 0xF0
+        self._display_state = new_color | current_effect
+        try:
+            self._device.write([0, self._display_state])
+        except IOError as e:
+            log.critical(f"Device not open or found: {e}")
+            raise IOError("Device not found or open while writing")
 
-    #TODO: Implement light_effect property logic here
+    @property
+    def effect(self) -> EffectState:
+        effect = self._display_state & 0xF0
+        return EffectState(effect)
+
+    @effect.setter
+    def effect(self, new_effect: EffectState):
+        log.debug(f"Setting light effect to {EffectState(new_effect).name}")
+        current_color = self._display_state & 0x0F
+        self._display_state = new_effect | current_color
+        try:
+            self._device.write([0, self._display_state])
+        except IOError as e:
+            log.critical(f"Device not open or found: {e}")
+            raise IOError("Device not found or open while writing")
 
     def open(self):
         log.debug("Opening device")
@@ -65,9 +85,10 @@ class Device:
             log.error(f"Compatible MuteMe device not found: {error}")
             raise DeviceNotFoundError("Device not found")
 
-        self.light_state = ColorState.OFF
+        self.effect = EffectState.OFF
+        self.color = ColorState.OFF
 
-    def read(self) -> Optional[int]:
+    def read_touch(self) -> Optional[int]:
         data = self._device.read(8)
         if data:
             log.debug(f"Read data: {TouchState(data[3]).name}")

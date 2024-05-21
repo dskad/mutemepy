@@ -1,7 +1,8 @@
 import asyncio
 import logging
 from typing import Callable, Optional
-from .devicestates import ColorState
+
+from .devicestates import ColorState, EffectState
 from .statemanager import StateManager
 from .device import Device
 
@@ -11,26 +12,32 @@ log.addHandler(logging.NullHandler())
 
 class MuteMe:
     def __init__(self) -> None:
-        self._long_tap_delay = 15
-        self._multi_tap_delay = 13
+        self._long_tap_delay: int = 15
+        self._multi_tap_delay: int = 13
 
-        self._state_manager = StateManager(self._long_tap_delay, self._multi_tap_delay)
+        self._state_manager: StateManager = StateManager(self._long_tap_delay, self._multi_tap_delay)
 
         self._observers: dict = {}
 
-        self._device = Device()
+        self._device: Device = Device()
         self._device.open()
 
+    # TODO: this probably needs to be decoupled. Dependency inversion?
     @property
-    def light_state(self) -> ColorState:
-        return self._device.light_state
+    def color(self) -> ColorState:
+        return self._device.color
 
-    @light_state.setter
-    def light_state(self, lightState: ColorState) -> None:
-        self._device.light_state = lightState
+    @color.setter
+    def color(self, new_color: ColorState) -> None:
+        self._device.color = new_color
 
-    # TODO: implement light_effect property, call to device property
-    # keep track of bitmap so change in color state doesn't overwrite effect
+    @property
+    def effect(self) -> EffectState:
+        return self._device.effect
+    
+    @effect.setter
+    def effect(self, new_effect: EffectState) -> None:
+        self._device.effect = new_effect
 
     @property
     def long_tap_delay(self) -> int:
@@ -74,7 +81,7 @@ class MuteMe:
         try:
             while True:
                 # Main event loop for button
-                device_data: Optional[int] = self._device.read()
+                device_data: Optional[int] = self._device.read_touch()
 
                 if device_data:
                     self._state_manager.on_data(self.notify, device_data)
@@ -92,5 +99,5 @@ class MuteMe:
             self.close()
 
     def close(self) -> None:
-        self.light_state = ColorState.OFF
+        self.color = ColorState.OFF
         self._device.close()

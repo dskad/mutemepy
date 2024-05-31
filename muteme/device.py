@@ -67,23 +67,31 @@ class Device:
                 log.debug(f"IOError for ({hex(vid)},{hex(pid)}), Device not found")
 
         try:
-            log.debug(f"Clearing device ({hex(vid)},{hex(pid)}) read buffer")
-
-            # counting nulls because the device appears to always send a null on first read
-            # and sometimes mixed in with the buffer data. (I might be reading too fast)
-            null_count = 0
-            while null_count < 5:
-                data = self._device.read(8)
-                log.debug(f"Clearing buffer: {data}")
-                if data == [0x0] * 8:
-                    break
-                elif data == []:
-                    null_count += 1
-                sleep(0.01)
+            manufacturer = self._device.get_manufacturer_string()
+            product = self._device.get_product_string()
+            serial_number = self._device.get_serial_number_string()
+            log.info(
+                f"Found Device: manufacturer: {manufacturer}, product: {product}, serial number: {serial_number}"
+            )
 
         except ValueError as error:
             log.error(f"Compatible MuteMe device not found: {error}")
             raise DeviceNotFoundError("Device not found")
+
+        log.debug(f"Clearing device ({hex(vid)},{hex(pid)}) read buffer")
+
+        # counting nulls because the device appears to always send a null on first read
+        # and sometimes mixed in with the buffer data. (I might be reading too fast)
+        # 4 consecutive nulls appears to indicate there is no more data to read
+        null_count = 0
+        while null_count < 5:
+            data = self._device.read(8)
+            log.debug(f"Clearing buffer: {data}")
+            if data == [0x0] * 8:
+                break
+            elif data == []:
+                null_count += 1
+            sleep(0.01)
 
         self.effect = EffectState.OFF
         self.color = ColorState.OFF

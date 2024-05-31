@@ -70,7 +70,7 @@ class MuteMe:
 
     def notify(self, event_type) -> None:
         if event_type not in self._observers:
-            log.debug("Notify: event not found")
+            log.error("Notify: event not found")
             return
         for observer in self._observers[event_type]:
             log.debug(f"Notify: notifying - {event_type}")

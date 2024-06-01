@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from muteme import MuteMe
 from muteme.devicestates import ColorState, EffectState
@@ -31,15 +30,8 @@ myMuteMe.on_long_tap_start(toggle_color)
 myMuteMe.on_long_tap_end(toggle_color)
 myMuteMe.on_multi_tap(toggle_pulse)
 
-
-# TODO: Can this move into the class so the user doesn't need to worry about async code?
-async def main():
-    async with asyncio.TaskGroup() as task_group:
-        task_group.create_task(myMuteMe.connect())
-
-
 try:
-    asyncio.run(main(), debug=False)
+    myMuteMe.connect()
 
 except KeyboardInterrupt:
     pass

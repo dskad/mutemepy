@@ -77,7 +77,7 @@ class MuteMe:
             observer()
     # endregion
 
-    async def connect(self) -> None:
+    async def _event_loop(self) -> None:
         try:
             while True:
                 # Main event loop for button
@@ -97,6 +97,9 @@ class MuteMe:
         except Exception as error:
             log.critical(error)
             self.close()
+
+    def connect(self) -> None:
+        asyncio.run(self._event_loop())
 
     def close(self) -> None:
         self.color = ColorState.OFF

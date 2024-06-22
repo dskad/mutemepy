@@ -78,8 +78,6 @@ class Device:
             log.error(f"Compatible MuteMe device not found: {error}")
             raise DeviceNotFoundError("Device not found")
 
-        log.debug(f"Clearing device ({hex(vid)},{hex(pid)}) read buffer")
-
         # counting nulls because the device appears to always send a null on first read
         # and sometimes mixed in with the buffer data. (I might be reading too fast)
         # 4 consecutive nulls appears to indicate there is no more data to read

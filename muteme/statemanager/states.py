@@ -1,8 +1,8 @@
-import logging
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Callable
+import logging
 
 from ..devicestates import TouchState
+from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .statemanager import StateManager
@@ -14,22 +14,24 @@ log.addHandler(logging.NullHandler())
 class State(ABC):
     @abstractmethod
     def on_data(
-        self, context: "StateManager", notify: Callable[[str], None], data: int
+        self, context: "StateManager", notify: Callable[[str, int], None], data: int
     ) -> None:
         pass
 
-    def on_nodata(self, context: "StateManager", notify: Callable[[str], None]) -> None:
+    def on_nodata(
+        self, context: "StateManager", notify: Callable[[str, int], None]
+    ) -> None:
         pass
 
 
 class Idle(State):
     def on_data(
-        self, context: "StateManager", notify: Callable[[str], None], data: int
+        self, context: "StateManager", notify: Callable[[str, int], None], data: int
     ) -> None:
         if data == TouchState.START_TOUCH:
             context.setState(context.start_tap_state)
 
-    def on_nodata(self, context: "StateManager", notify: Callable[[str], None]):
+    def on_nodata(self, context: "StateManager", notify: Callable[[str, int], None]):
         pass
 
 
@@ -38,7 +40,7 @@ class StartTap(State):
         self._timer = 0
 
     def on_data(
-        self, context: "StateManager", notify: Callable[[str], None], data: int
+        self, context: "StateManager", notify: Callable[[str, int], None], data: int
     ) -> None:
         if data == TouchState.END_TOUCH:
             self._timer = 0
@@ -50,7 +52,7 @@ class StartTap(State):
         else:
             self._timer += 1
 
-    def on_nodata(self, context: "StateManager", notify: Callable[[str], None]):
+    def on_nodata(self, context: "StateManager", notify: Callable[[str, int], None]):
         pass
 
 
@@ -65,13 +67,14 @@ class MultiTapDetect(State):
             self._multi_touch_count += 1
             context.setState(context.start_tap_state)
 
-    def on_nodata(self, context: "StateManager", notify: Callable[[str], None]) -> None:
+    def on_nodata(
+        self, context: "StateManager", notify: Callable[[str, int], None]
+    ) -> None:
         if self._timer >= context._multi_tap_delay:
-            # TODO: change notify to allow notification of count of multi touch
             if self._multi_touch_count > 1:
-                notify("on_double_tap")
+                notify("on_multi_tap", self._multi_touch_count)
             else:
-                notify("on_tap")
+                notify("on_tap", 1)
 
             self._timer = 0
             self._multi_touch_count = 1
@@ -82,12 +85,12 @@ class MultiTapDetect(State):
 
 class TapEnd(State):
     def on_data(
-        self, context: "StateManager", notify: Callable[[str], None], data: int
+        self, context: "StateManager", notify: Callable[[str, int], None], data: int
     ) -> None:
-        notify("on_tap")
+        notify("on_tap", 1)
         context.setState(context.idle_state)
 
-    def on_nodata(self, context: "StateManager", notify: Callable[[str], None]):
+    def on_nodata(self, context: "StateManager", notify: Callable[[str, int], None]):
         pass
 
 
@@ -97,13 +100,15 @@ class LongTap(State):
 
     def on_data(self, context: "StateManager", notify, data: int) -> None:
         if self._initial_call:
-            notify("on_long_tap_start")
+            notify("on_long_tap_start", 1)
             self._initial_call = False
 
         if data == TouchState.END_TOUCH:
-            notify("on_long_tap_end")
+            notify("on_long_tap_end", 1)
             self._initial_call = True
             context.setState(context.idle_state)
 
-    def on_nodata(self, context: "StateManager", notify: Callable[[str], None]) -> None:
+    def on_nodata(
+        self, context: "StateManager", notify: Callable[[str, int], None]
+    ) -> None:
         pass

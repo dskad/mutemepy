@@ -1,4 +1,6 @@
 import logging
+import sys
+
 from muteme import MuteMe
 from muteme.devicestates import ColorState, EffectState
 
@@ -9,18 +11,21 @@ logging.basicConfig(
 )
 
 
-def toggle_color() -> None:
+def toggle_color(count) -> None:
     if myMuteMe.color == ColorState.GREEN:
         myMuteMe.color = ColorState.RED
     else:
         myMuteMe.color = ColorState.GREEN
 
 
-def toggle_pulse() -> None:
+def toggle_pulse(count) -> None:
     if myMuteMe.effect == EffectState.FASTPULSE:
         myMuteMe.effect = EffectState.OFF
     else:
         myMuteMe.effect = EffectState.FASTPULSE
+    log.debug(f"Multi-tap count: {count}")
+    if count == 4:
+        sys.exit(0)
 
 
 myMuteMe = MuteMe()

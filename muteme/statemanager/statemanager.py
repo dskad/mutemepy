@@ -19,6 +19,8 @@ class StateManager:
 
         self._state = self._idle_state
 
+    # Property use here is to make attributes read only. This helps prevent difficult to find
+    # bugs when a state accidently is overwritten with another state
     @property
     def idle_state(self):
         return self._idle_state
@@ -43,9 +45,9 @@ class StateManager:
         # log.debug(f"Setting state to {self._state}")
         self._state = state
 
-    def on_data(self, notify_func: Callable[[str], None], data: int):
+    def on_data(self, notify_func: Callable[[str, int], None], data: int):
         self._state.on_data(self, notify_func, data)
 
     # TODO: This needs a better name, maybe 'tick'
-    def on_nodata(self, notify_func: Callable[[str], None]):
+    def on_nodata(self, notify_func: Callable[[str, int], None]):
         self._state.on_nodata(self, notify_func)

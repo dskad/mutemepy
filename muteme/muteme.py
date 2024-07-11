@@ -58,25 +58,25 @@ class MuteMe:
         self._multi_tap_delay = delay
 
     # region Callbacks
-    def on_tap(self, observer: Callable[[], None]) -> None:
+    def on_tap(self, observer: Callable[[int], None]) -> None:
         self._observers.setdefault("on_tap", []).append(observer)
 
-    def on_long_tap_start(self, observer: Callable[[], None]) -> None:
+    def on_long_tap_start(self, observer: Callable[[int], None]) -> None:
         self._observers.setdefault("on_long_tap_start", []).append(observer)
 
-    def on_long_tap_end(self, observer: Callable[[], None]) -> None:
+    def on_long_tap_end(self, observer: Callable[[int], None]) -> None:
         self._observers.setdefault("on_long_tap_end", []).append(observer)
 
-    def on_multi_tap(self, observer: Callable[[], None]) -> None:
-        self._observers.setdefault("on_double_tap", []).append(observer)
+    def on_multi_tap(self, observer: Callable[[int], None]) -> None:
+        self._observers.setdefault("on_multi_tap", []).append(observer)
 
-    def notify(self, event_type) -> None:
+    def notify(self, event_type, event_count) -> None:
         if event_type not in self._observers:
             log.error("Notify: event not found")
             return
         for observer in self._observers[event_type]:
             log.debug(f"Notify: notifying - {event_type}")
-            observer()
+            observer(event_count)
 
     # endregion
 

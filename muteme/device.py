@@ -1,8 +1,10 @@
+import logging
 from time import sleep
 from typing import Optional
+
 import hid
-import logging
-from .devicestates import TouchState, ColorState, EffectState
+
+from .devicestates import ColorState, EffectState, TouchState
 from .exceptions import DeviceNotFoundError
 
 log = logging.getLogger(__name__)
@@ -61,9 +63,8 @@ class Device:
                 self._device.set_nonblocking(1)
                 break
             except IOError:
-                # NOTE: the exception of no device connected after trying all device IDs is
-                # caught in the buffer clearing section below. Connection errors are
-                # purposely ignored here
+                # NOTE: The exception of no device connected after trying all device IDs is
+                # caught in the try block below. Connection errors are purposely ignored here
                 log.debug(f"IOError for ({hex(vid)},{hex(pid)}), Device not found")
 
         try:
@@ -84,7 +85,7 @@ class Device:
         null_count = 0
         while null_count < 5:
             data = self._device.read(8)
-            log.debug(f"Clearing buffer: {data}")
+            log.debug(f"Deleting buffer data: {data}")
             if data == [0x0] * 8:
                 break
             elif data == []:

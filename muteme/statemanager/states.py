@@ -1,8 +1,8 @@
-from abc import ABC, abstractmethod
 import logging
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Callable
 
 from ..devicestates import TouchState
-from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .statemanager import StateManager

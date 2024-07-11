@@ -15,14 +15,16 @@ class MuteMe:
         self._long_tap_delay: int = 15
         self._multi_tap_delay: int = 13
 
-        self._state_manager: StateManager = StateManager(self._long_tap_delay, self._multi_tap_delay)
+        self._state_manager: StateManager = StateManager(
+            self._long_tap_delay, self._multi_tap_delay
+        )
 
         self._observers: dict = {}
 
+        # TODO: this probably needs to be decoupled. Dependency inversion?
         self._device: Device = Device()
         self._device.open()
 
-    # TODO: this probably needs to be decoupled. Dependency inversion?
     @property
     def color(self) -> ColorState:
         return self._device.color
@@ -34,7 +36,7 @@ class MuteMe:
     @property
     def effect(self) -> EffectState:
         return self._device.effect
-    
+
     @effect.setter
     def effect(self, new_effect: EffectState) -> None:
         self._device.effect = new_effect
@@ -75,6 +77,7 @@ class MuteMe:
         for observer in self._observers[event_type]:
             log.debug(f"Notify: notifying - {event_type}")
             observer()
+
     # endregion
 
     async def _event_loop(self) -> None:

@@ -48,6 +48,5 @@ class StateManager:
     def on_data(self, notify_func: Callable[[str, int], None], data: int):
         self._state.on_data(self, notify_func, data)
 
-    # TODO: This needs a better name, maybe 'tick'
-    def on_nodata(self, notify_func: Callable[[str, int], None]):
-        self._state.on_nodata(self, notify_func)
+    def on_tick(self, notify_func: Callable[[str, int], None]):
+        self._state.on_tick(self, notify_func)

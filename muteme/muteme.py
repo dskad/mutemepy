@@ -89,7 +89,7 @@ class MuteMe:
                 if device_data:
                     self._state_manager.on_data(self.notify, device_data)
                 else:
-                    self._state_manager.on_nodata(self.notify)
+                    self._state_manager.on_tick(self.notify)
 
                 # 0.01 = 100Hz sample rate
                 await asyncio.sleep(0.01)

@@ -18,7 +18,7 @@ class State(ABC):
     ) -> None:
         pass
 
-    def on_nodata(
+    def on_tick(
         self, context: "StateManager", notify: Callable[[str, int], None]
     ) -> None:
         pass
@@ -31,7 +31,7 @@ class Idle(State):
         if data == TouchState.START_TOUCH:
             context.setState(context.start_tap_state)
 
-    def on_nodata(self, context: "StateManager", notify: Callable[[str, int], None]):
+    def on_tick(self, context: "StateManager", notify: Callable[[str, int], None]):
         pass
 
 
@@ -52,7 +52,7 @@ class StartTap(State):
         else:
             self._timer += 1
 
-    def on_nodata(self, context: "StateManager", notify: Callable[[str, int], None]):
+    def on_tick(self, context: "StateManager", notify: Callable[[str, int], None]):
         pass
 
 
@@ -67,7 +67,7 @@ class MultiTapDetect(State):
             self._multi_touch_count += 1
             context.setState(context.start_tap_state)
 
-    def on_nodata(
+    def on_tick(
         self, context: "StateManager", notify: Callable[[str, int], None]
     ) -> None:
         if self._timer >= context._multi_tap_delay:
@@ -90,7 +90,7 @@ class TapEnd(State):
         notify("on_tap", 1)
         context.setState(context.idle_state)
 
-    def on_nodata(self, context: "StateManager", notify: Callable[[str, int], None]):
+    def on_tick(self, context: "StateManager", notify: Callable[[str, int], None]):
         pass
 
 
@@ -108,7 +108,7 @@ class LongTap(State):
             self._initial_call = True
             context.setState(context.idle_state)
 
-    def on_nodata(
+    def on_tick(
         self, context: "StateManager", notify: Callable[[str, int], None]
     ) -> None:
         pass

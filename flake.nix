@@ -17,9 +17,7 @@
           python312
           python312Packages.pip
           python312Packages.hidapi
-          python312Packages.pylint
           ruff
-          isort
         ];
       };
     };

@@ -2,9 +2,9 @@ import asyncio
 import logging
 from typing import Callable, Optional
 
+from .device import Device
 from .devicestates import ColorState, EffectState
 from .statemanager import StateManager
-from .device import Device
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -57,7 +57,6 @@ class MuteMe:
     def multi_tap_delay(self, delay: int) -> None:
         self._multi_tap_delay = delay
 
-    # region Callbacks
     def on_tap(self, observer: Callable[[int], None]) -> None:
         self._observers.setdefault("on_tap", []).append(observer)
 
@@ -77,8 +76,6 @@ class MuteMe:
         for observer in self._observers[event_type]:
             log.debug(f"Notify: notifying - {event_type}")
             observer(event_count)
-
-    # endregion
 
     async def _event_loop(self) -> None:
         try:

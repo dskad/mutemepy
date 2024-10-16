@@ -20,7 +20,7 @@ class StateManager:
         self._state = self._idle_state
 
     # Property use here is to make attributes read only. This helps prevent difficult to find
-    # bugs when a state accidently is overwritten with another state
+    # bugs when a state accidentally is overwritten with another state
     @property
     def idle_state(self):
         return self._idle_state

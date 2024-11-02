@@ -18,6 +18,7 @@
           python312Packages.pip
           python312Packages.hidapi
           ruff
+          uv
         ];
       };
     };

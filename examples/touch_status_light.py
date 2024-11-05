@@ -1,8 +1,8 @@
 import logging
 import sys
 
-from muteme import MuteMe
-from muteme.devicestates import ColorState, EffectState
+from mutemepy import MuteMe
+from mutemepy.devicestates import ColorState, EffectState
 
 log = logging.getLogger()
 logging.basicConfig(

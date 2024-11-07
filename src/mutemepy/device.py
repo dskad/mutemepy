@@ -4,6 +4,7 @@ from typing import Optional
 
 import hid
 
+from .abstractclasses import AbstractDevice
 from .devicestates import ColorState, EffectState, TouchState
 from .exceptions import DeviceNotFoundError
 
@@ -11,8 +12,8 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class Device:
-    def __init__(self):
+class Device(AbstractDevice):
+    def __init__(self) -> None:
         self._supported_devices = [
             (0x16C0, 0x27DB),  # MuteMe Original (prototypes)
             (0x20A0, 0x42DA),  # MuteMe Original (production)
@@ -44,7 +45,7 @@ class Device:
         return EffectState(effect)
 
     @effect.setter
-    def effect(self, new_effect: EffectState):
+    def effect(self, new_effect: EffectState) -> None:
         log.debug(f"Setting light effect to {EffectState(new_effect).name}")
         current_color = self._display_state & 0x0F
         self._display_state = new_effect | current_color
@@ -54,7 +55,7 @@ class Device:
             log.critical(f"Device not open or found: {e}")
             raise IOError("Device not found or open while writing")
 
-    def open(self):
+    def open(self) -> None:
         log.debug("Opening device")
         for vid, pid in self._supported_devices:
             try:

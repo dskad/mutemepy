@@ -2,6 +2,7 @@ import asyncio
 import logging
 from typing import Callable, Optional
 
+from .abstractclasses import AbstractDevice
 from .device import Device
 from .devicestates import ColorState, EffectState
 from .statemanager import StateManager
@@ -11,7 +12,12 @@ log.addHandler(logging.NullHandler())
 
 
 class MuteMe:
-    def __init__(self, long_tap_delay=15, multi_tap_delay=13) -> None:
+    def __init__(
+        self,
+        long_tap_delay: int = 15,
+        multi_tap_delay: int = 13,
+        device: AbstractDevice = Device(),
+    ) -> None:
         self._long_tap_delay = long_tap_delay
         self._multi_tap_delay = multi_tap_delay
 
@@ -21,8 +27,7 @@ class MuteMe:
 
         self._observers: dict = {}
 
-        # TODO: this probably needs to be decoupled. Dependency inversion?
-        self._device: Device = Device()
+        self._device: AbstractDevice = device
         self._device.open()
 
     @property

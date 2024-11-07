@@ -46,7 +46,7 @@ class StartTap(State):
             self._timer = 0
             context.setState(context.multi_tap_detect_state)
 
-        if self._timer >= context._long_tap_delay:
+        if self._timer >= context.long_tap_delay:
             self._timer = 0
             context.setState(context.long_tap_state)
         else:
@@ -70,7 +70,7 @@ class MultiTapDetect(State):
     def on_tick(
         self, context: "StateManager", notify: Callable[[str, int], None]
     ) -> None:
-        if self._timer >= context._multi_tap_delay:
+        if self._timer >= context.multi_tap_delay:
             if self._multi_touch_count > 1:
                 notify("on_multi_tap", self._multi_touch_count)
             else:

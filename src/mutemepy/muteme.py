@@ -11,9 +11,9 @@ log.addHandler(logging.NullHandler())
 
 
 class MuteMe:
-    def __init__(self) -> None:
-        self._long_tap_delay: int = 15
-        self._multi_tap_delay: int = 13
+    def __init__(self, long_tap_delay=15, multi_tap_delay=13) -> None:
+        self._long_tap_delay = long_tap_delay
+        self._multi_tap_delay = multi_tap_delay
 
         self._state_manager: StateManager = StateManager(
             self._long_tap_delay, self._multi_tap_delay
@@ -45,17 +45,9 @@ class MuteMe:
     def long_tap_delay(self) -> int:
         return self._long_tap_delay
 
-    @long_tap_delay.setter
-    def long_tap_delay(self, delay: int) -> None:
-        self._long_tap_delay = delay
-
     @property
     def multi_tap_delay(self) -> int:
         return self._multi_tap_delay
-
-    @multi_tap_delay.setter
-    def multi_tap_delay(self, delay: int) -> None:
-        self._multi_tap_delay = delay
 
     def on_tap(self, observer: Callable[[int], None]) -> None:
         self._observers.setdefault("on_tap", []).append(observer)

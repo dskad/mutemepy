@@ -1,9 +1,8 @@
 import asyncio
 import logging
-from typing import Callable, Optional
+from typing import Callable, Optional, List
 
-from .abstractclasses import AbstractDevice
-from .device import Device
+from .device import Device, AbstractDevice
 from .devicestates import ColorState, EffectState
 from .statemanager import StateManager
 
@@ -18,14 +17,14 @@ class MuteMe:
         multi_tap_delay: int = 13,
         device: AbstractDevice = Device(),
     ) -> None:
-        self._long_tap_delay = long_tap_delay
-        self._multi_tap_delay = multi_tap_delay
+        self._long_tap_delay: int = long_tap_delay
+        self._multi_tap_delay: int = multi_tap_delay
 
         self._state_manager: StateManager = StateManager(
             self._long_tap_delay, self._multi_tap_delay
         )
 
-        self._observers: dict = {}
+        self._observers: dict[str, List[Callable[[int], None]]] = {}
 
         self._device: AbstractDevice = device
         self._device.open()
@@ -54,6 +53,7 @@ class MuteMe:
     def multi_tap_delay(self) -> int:
         return self._multi_tap_delay
 
+    # Register callback functions with respective event
     def on_tap(self, observer: Callable[[int], None]) -> None:
         self._observers.setdefault("on_tap", []).append(observer)
 
@@ -66,7 +66,17 @@ class MuteMe:
     def on_multi_tap(self, observer: Callable[[int], None]) -> None:
         self._observers.setdefault("on_multi_tap", []).append(observer)
 
-    def notify(self, event_type, event_count) -> None:
+    def notify(self, event_type: str, event_count: int) -> None:
+        """Notify event subscribers
+
+        Args:
+            event_type: One of 4 event types
+                * on_tap: Fires when device touch started
+                * on_long_tap_start: Fires when device is still touched and long_tap_delay expires
+                * on_long_tap_end: Fires after on_long_tap_start fires and device touch has ended
+                * on_multi_tap: Fires after initial on_tap fires an
+            event_count:
+        """
         if event_type not in self._observers:
             log.error("Notify: event not found")
             return

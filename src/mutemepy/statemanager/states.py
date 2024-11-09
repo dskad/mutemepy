@@ -31,12 +31,9 @@ class Idle(State):
         if data == TouchState.START_TOUCH:
             context.setState(context.start_tap_state)
 
-    def on_tick(self, context: "StateManager", notify: Callable[[str, int], None]):
-        pass
-
 
 class StartTap(State):
-    def __init__(self):
+    def __init__(self) -> None:
         self._timer = 0
 
     def on_data(
@@ -51,9 +48,6 @@ class StartTap(State):
             context.setState(context.long_tap_state)
         else:
             self._timer += 1
-
-    def on_tick(self, context: "StateManager", notify: Callable[[str, int], None]):
-        pass
 
 
 class MultiTapDetect(State):
@@ -90,12 +84,9 @@ class TapEnd(State):
         notify("on_tap", 1)
         context.setState(context.idle_state)
 
-    def on_tick(self, context: "StateManager", notify: Callable[[str, int], None]):
-        pass
-
 
 class LongTap(State):
-    def __init__(self):
+    def __init__(self) -> None:
         self._initial_call: bool = True
 
     def on_data(self, context: "StateManager", notify, data: int) -> None:
@@ -107,8 +98,3 @@ class LongTap(State):
             notify("on_long_tap_end", 1)
             self._initial_call = True
             context.setState(context.idle_state)
-
-    def on_tick(
-        self, context: "StateManager", notify: Callable[[str, int], None]
-    ) -> None:
-        pass

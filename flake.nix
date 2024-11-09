@@ -14,11 +14,12 @@
       devShells.x86_64-linux.default = pkgs.mkShell {
         name = "mutemepy dev environment";
         buildInputs = with pkgs; [
+          libz
           python312
           python312Packages.pip
           python312Packages.hidapi
-          ruff
-          uv
+          # ruff
+          # uv
         ];
       };
     };

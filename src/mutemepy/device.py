@@ -52,6 +52,10 @@ class Device(AbstractDevice):
             (0x16C0, 0x27DB),  # MuteMe Original (prototypes)
             (0x20A0, 0x42DA),  # MuteMe Original (production)
             (0x20A0, 0x42DB),  # MuteMe Mini (production)
+            (0x3603, 0x0001),  # MuteMe Original (Batch 009 and later)
+            (0x3603, 0x0002),  # MuteMe Mini USB C
+            (0x3603, 0x0003),  # MuteMe Mini USB A
+            (0x3603, 0x0004),  # MuteMe Mini (Generic)
         ]
 
         self._device = hid.device()
@@ -91,6 +95,12 @@ class Device(AbstractDevice):
 
     def open(self) -> None:
         log.debug("Opening device")
+
+        # FIXME: use enumerate() to find connected devices then search for Compatible device
+        # This should probably be in a find function
+        #
+        # devices = hid.enumerate()
+        # [device for device in devices if (device["vendor_id"], device["product_id"]) in _supported_devices]
         for vid, pid in self._supported_devices:
             try:
                 log.debug(f"Attempting to open: ({hex(vid)},{hex(pid)})")
